@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface Formatter {
 
-    byte[] format(List<SerializedField> serializedFields);
+    byte[] format(Class<?> clazz, List<SerializedField> serializedFields);
 }

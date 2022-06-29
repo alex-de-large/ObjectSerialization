@@ -1,8 +1,6 @@
 package serialization;
 
-import serialization.annotations.Ignore;
-import serialization.annotations.Key;
-import serialization.annotations.Serializable;
+import serialization.annotations.*;
 import serialization.core.Formatter;
 import serialization.core.SerializedField;
 import serialization.core.SerializedFieldComparator;
@@ -10,32 +8,34 @@ import serialization.core.Serializer;
 import serialization.exceptions.SerializationException;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
+// TODO add null value serialization possibility
+// TODO type (field) serializer and formatter select by annotation
 public final class ObjectSerializer implements Serializer<Object> {
 
     private CommonSerializer commonSerializer;
-    private Formatter formatter;
+    private Formatter defaultFormatter;
     private SerializedFieldComparator serializedFieldComparator;
+    private HashMap<Class<?>, Formatter> formatters;
 
     private ObjectSerializer(Builder builder) {
         this.commonSerializer = builder.commonSerializer != null? builder.commonSerializer : new CommonSerializer();
-        this.formatter = builder.formatter != null? builder.formatter : new DefaultFormatter();
+        this.defaultFormatter = builder.defaultFormatter != null? builder.defaultFormatter : new DefaultFormatter();
         this.serializedFieldComparator = builder.serializedFieldComparator != null? builder.serializedFieldComparator :
                 new DefaultComparator();
+        this.formatters = builder.formatters;
     }
 
     public static class Builder {
 
         private CommonSerializer commonSerializer;
-        private Formatter formatter;
+        private Formatter defaultFormatter;
         private SerializedFieldComparator serializedFieldComparator;
+        private HashMap<Class<?>, Formatter> formatters;
 
         public Builder() {
-
+            this.formatters = new HashMap<>();
         }
 
         public Builder setCommonSerializer(CommonSerializer commonSerializer) {
@@ -43,8 +43,13 @@ public final class ObjectSerializer implements Serializer<Object> {
             return this;
         }
 
-        public Builder setFormatter(Formatter formatter) {
-            this.formatter = formatter;
+        public Builder setDefaultFormatter(Formatter defaultFormatter) {
+            this.defaultFormatter = defaultFormatter;
+            return this;
+        }
+
+        public Builder setFormatter(Class<?> clazz, Formatter formatter) {
+            formatters.put(clazz, formatter);
             return this;
         }
 
@@ -56,6 +61,22 @@ public final class ObjectSerializer implements Serializer<Object> {
         public ObjectSerializer build() {
             return new ObjectSerializer(this);
         }
+    }
+
+    public void setCommonSerializer(CommonSerializer commonSerializer) {
+        this.commonSerializer = commonSerializer;
+    }
+
+    public void setDefaultFormatter(Formatter defaultFormatter) {
+        this.defaultFormatter = defaultFormatter;
+    }
+
+    public void setSerializedFieldComparator(SerializedFieldComparator serializedFieldComparator) {
+        this.serializedFieldComparator = serializedFieldComparator;
+    }
+
+    public void setFormatter(Class<?> clazz, Formatter formatter) {
+        formatters.put(clazz, formatter);
     }
 
     public byte[] serialize(Object o) {
@@ -84,20 +105,22 @@ public final class ObjectSerializer implements Serializer<Object> {
         ArrayList<Class<?>> classes = new ArrayList<>();
         classes.add(clazz);
 
+        Class<?> sClazz = clazz;
         while (true) {
-            clazz = clazz.getSuperclass();
-            if (clazz.isAnnotationPresent(Serializable.class)) {
-                classes.add(clazz);
+            sClazz = sClazz.getSuperclass();
+            if (sClazz.isAnnotationPresent(Serializable.class)) {
+                classes.add(0, sClazz);
             } else {
                 break;
             }
         }
 
+
         LinkedHashSet<SerializedField> sf = new LinkedHashSet<>();
         for (Class<?> c: classes) {
             for (Field field : c.getDeclaredFields()) {
                 field.setAccessible(true);
-                if (!field.isAnnotationPresent(Ignore.class)) {
+                if (!ignore(field)) {
                     byte[] data;
                     if (commonSerializer.canSerialize(field.getType())) {
                         data = commonSerializer.serialize(field.get(object));
@@ -107,10 +130,11 @@ public final class ObjectSerializer implements Serializer<Object> {
 
                     sf.add(new SerializedField.Builder()
                             .setFieldName(field.getName())
-                            .setKey(field.isAnnotationPresent(Key.class)?getKey(field):field.getName())
+                            .setKey(getKey(field))
+                            .setPosition(getPosition(field))
                             .setClass(field.getType())
                             .setDeclaringClass(field.getDeclaringClass())
-                            .setStringValue(field.get(object).toString())
+                            .setStringValue(getStringValue(object, field, data))
                             .setData(data)
                             .build()
                     );
@@ -118,12 +142,63 @@ public final class ObjectSerializer implements Serializer<Object> {
             }
         }
 
-        return formatter.format(sf.stream().sorted(serializedFieldComparator).collect(Collectors.toList()));
+        List<SerializedField> serializedFields = new ArrayList<>(sf);
+        if (serializedFieldComparator != null) {
+            serializedFields.sort(serializedFieldComparator);
+        } else {
+            serializedFields.sort(new ByPosition());
+        }
+
+        if (formatters.containsKey(clazz)) {
+            return formatters.get(clazz).format(clazz, serializedFields);
+        } else {
+            return defaultFormatter.format(clazz, serializedFields);
+        }
+    }
+
+    private String getStringValue(Object object, Field field, byte[] fieldData) throws IllegalAccessException {
+        SerializedFieldStringValueExtractionPolicy policy = SerializedFieldStringValueExtractionPolicy.FROM_VALUE;
+        if (field.isAnnotationPresent(StringValueExtractionPolicy.class)) {
+            policy = field.getAnnotation(StringValueExtractionPolicy.class).policy();
+        }
+        if (policy == SerializedFieldStringValueExtractionPolicy.FROM_VALUE) {
+            return field.get(object).toString();
+        } else if (policy == SerializedFieldStringValueExtractionPolicy.FROM_SERIALIZED_DATA) {
+            return new String(fieldData);
+        } else {
+            return "";
+        }
     }
 
     private String getKey(Field field) {
-        String value = field.getAnnotation(Key.class).value();
-        return value.isEmpty() ? field.getName() : value;
+        if (field.isAnnotationPresent(Key.class)) {
+            String value = field.getAnnotation(Key.class).value();
+            return value.isEmpty() ? field.getName() : value;
+        }
+        return field.getName();
     }
 
+    private int getPosition(Field field) {
+        if (field.isAnnotationPresent(Position.class)) {
+            return field.getAnnotation(Position.class).position();
+        }
+        return -1;
+    }
+
+    private boolean ignore(Field field) {
+        return field.isAnnotationPresent(Ignore.class);
+    }
+
+    private <T> T createInstance(Class<T> clazz) throws IllegalAccessException, InstantiationException {
+        return clazz.newInstance();
+    }
+
+    private static class ByPosition implements Comparator<SerializedField> {
+
+        @Override
+        public int compare(SerializedField o1, SerializedField o2) {
+            return o1.getPosition() - o2.getPosition();
+        }
+    }
 }
+

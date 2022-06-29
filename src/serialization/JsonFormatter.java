@@ -3,13 +3,20 @@ package serialization;
 import serialization.core.Formatter;
 import serialization.core.SerializedField;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class JsonFormatter implements Formatter {
 
+    private Charset charset;
+
+    public JsonFormatter(Charset charset) {
+        this.charset = charset;
+    }
+
     @Override
-    public byte[] format(List<SerializedField> serializedFields) {
+    public byte[] format(Class<?> clazz, List<SerializedField> serializedFields) {
         String d ;
         String v;
         StringBuilder sb = new StringBuilder();
@@ -18,14 +25,14 @@ public class JsonFormatter implements Formatter {
             if (isNumeric(sf.getClazz())) {
                 v = sf.getStringValue();
             } else {
-                v = new String(sf.getData(), StandardCharsets.US_ASCII);
+                v = new String(sf.getData(), charset);
             }
-            d = isString(sf.getClazz())?"\"":"";
-            sb.append("\"" + sf.getKey() + "\":" + d + v + d + ",");
+            d = isString(sf.getClazz())? "\"" :"";
+            sb.append("\"").append(sf.getKey()).append("\":").append(d).append(v).append(d).append(",");
         }
         sb.deleteCharAt(sb.length() - 1);
 
-        return ("{" + sb.toString() + "}").getBytes(StandardCharsets.US_ASCII);
+        return ("{" + sb.toString() + "}").getBytes(charset);
     }
 
     private boolean isString(Class<?> clazz) {

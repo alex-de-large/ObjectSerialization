@@ -6,6 +6,7 @@ public class SerializedField {
 
     private String fieldName;
     private String key;
+    private int position;
     private Class<?> clazz;
     private Class<?> declaringClass;
     private String stringValue;
@@ -33,6 +34,10 @@ public class SerializedField {
 
     public byte[] getData() {
         return data;
+    }
+
+    public int getPosition() {
+        return position;
     }
 
     public static class Builder {
@@ -69,6 +74,11 @@ public class SerializedField {
 
         public Builder setData(byte[] data) {
             newSerializedField.data = data;
+            return this;
+        }
+
+        public Builder setPosition(int position) {
+            newSerializedField.position = position;
             return this;
         }
 

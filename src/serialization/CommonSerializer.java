@@ -3,6 +3,7 @@ package serialization;
 import serialization.core.Serializer;
 import serialization.exceptions.SerializationException;
 
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ public class CommonSerializer implements Serializer<Object> {
     private Options options;
 
     public CommonSerializer() {
-        this(new Options());
+        this(new Options.Builder().build());
     }
 
     public CommonSerializer(Options options) {
@@ -23,11 +24,39 @@ public class CommonSerializer implements Serializer<Object> {
     }
 
     public static class Options {
-        public Charset stringEncoding;
-        // TODO Add options for serializers
 
-        public Options() {
-            stringEncoding = StandardCharsets.US_ASCII;
+        private Charset stringEncoding;
+        private ByteOrder byteOrder;
+
+
+        private Options(Builder builder) {
+            stringEncoding = builder.stringEncoding;
+            byteOrder = builder.byteOrder;
+        }
+
+        public static class Builder {
+
+            private Charset stringEncoding;
+            private ByteOrder byteOrder;
+
+            public Builder() {
+                stringEncoding = StandardCharsets.UTF_8;
+                byteOrder = ByteOrder.BIG_ENDIAN;
+            }
+
+            public Builder setCharset(Charset charset) {
+                this.stringEncoding = charset;
+                return this;
+            }
+
+            public Builder setByteOrder(ByteOrder byteOrder) {
+                this.byteOrder = byteOrder;
+                return this;
+            }
+
+            public Options build() {
+                return new Options(this);
+            }
         }
     }
 
@@ -59,7 +88,7 @@ public class CommonSerializer implements Serializer<Object> {
         return serializerHashMap.containsKey(clazz);
     }
 
-    public void setSerializer(Class<?> clazz, Serializer serializer) {
+    public <O> void setSerializer(Class<?> clazz, Serializer<O> serializer) {
         serializerHashMap.put(clazz, serializer);
     }
 

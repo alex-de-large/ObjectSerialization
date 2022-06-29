@@ -11,8 +11,8 @@ public class DefaultComparator implements SerializedFieldComparator {
             return 0;
         }
         if (o1.getDeclaringClass().isAssignableFrom(o2.getDeclaringClass())) {
-            return 1;
+            return -1;
         }
-        return -1;
+        return 1;
     }
 }

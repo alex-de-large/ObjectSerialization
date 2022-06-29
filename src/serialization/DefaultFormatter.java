@@ -11,7 +11,7 @@ import java.util.List;
 public class DefaultFormatter implements Formatter {
 
     @Override
-    public byte[] format(List<SerializedField> serializedFields) {
+    public byte[] format(Class<?> clazz, List<SerializedField> serializedFields) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         for (SerializedField sf: serializedFields) {
             try {
