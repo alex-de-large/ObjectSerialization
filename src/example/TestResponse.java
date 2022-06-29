@@ -1,10 +1,7 @@
-package test;
-
-import com.alex.serialization.annotations.Position;
+package example;
 
 public class TestResponse extends Response{
 
-    @Position(position = -1)
     private String f4;
 
     public TestResponse(Header header, String field1, String f4) {

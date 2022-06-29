@@ -1,14 +1,18 @@
-package test;
+package example;
 
 import com.alex.serialization.annotations.Key;
+import com.alex.serialization.annotations.Position;
 import com.alex.serialization.annotations.Serializable;
 
 @Serializable
-public class Header {
+class Header {
 
-
-    @Key(value = "pudge") private String field1;
-    @Key(value = "void")  private String field2;
+    @Position(position = 1)
+    @Key(value = "pudge")
+    private String field1;
+    @Position(position = 0)
+    @Key(value = "void")
+    private String field2;
 
     public Header(String field1, String field2) {
         this.field1 = field1;

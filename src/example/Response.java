@@ -1,11 +1,12 @@
-package test;
+package example;
 
 import com.alex.serialization.SerializedFieldStringValueExtractionPolicy;
+import com.alex.serialization.annotations.Position;
 import com.alex.serialization.annotations.Serializable;
 import com.alex.serialization.annotations.StringValueExtractionPolicy;
 
 @Serializable
-public class Response {
+class Response {
 
     @StringValueExtractionPolicy(policy = SerializedFieldStringValueExtractionPolicy.FROM_SERIALIZED_DATA)
     private Header header;
