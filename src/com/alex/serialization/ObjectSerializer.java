@@ -1,11 +1,11 @@
-package serialization;
+package com.alex.serialization;
 
-import serialization.annotations.*;
-import serialization.core.Formatter;
-import serialization.core.SerializedField;
-import serialization.core.SerializedFieldComparator;
-import serialization.core.Serializer;
-import serialization.exceptions.SerializationException;
+import com.alex.serialization.annotations.*;
+import com.alex.serialization.core.Formatter;
+import com.alex.serialization.core.SerializedField;
+import com.alex.serialization.core.SerializedFieldComparator;
+import com.alex.serialization.core.Serializer;
+import com.alex.serialization.exceptions.SerializationException;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -15,9 +15,9 @@ import java.util.*;
 public final class ObjectSerializer implements Serializer<Object> {
 
     private CommonSerializer commonSerializer;
-    private Formatter defaultFormatter;
+    private com.alex.serialization.core.Formatter defaultFormatter;
     private SerializedFieldComparator serializedFieldComparator;
-    private HashMap<Class<?>, Formatter> formatters;
+    private HashMap<Class<?>, com.alex.serialization.core.Formatter> formatters;
 
     private ObjectSerializer(Builder builder) {
         this.commonSerializer = builder.commonSerializer != null? builder.commonSerializer : new CommonSerializer();
@@ -30,9 +30,9 @@ public final class ObjectSerializer implements Serializer<Object> {
     public static class Builder {
 
         private CommonSerializer commonSerializer;
-        private Formatter defaultFormatter;
+        private com.alex.serialization.core.Formatter defaultFormatter;
         private SerializedFieldComparator serializedFieldComparator;
-        private HashMap<Class<?>, Formatter> formatters;
+        private HashMap<Class<?>, com.alex.serialization.core.Formatter> formatters;
 
         public Builder() {
             this.formatters = new HashMap<>();
@@ -43,12 +43,12 @@ public final class ObjectSerializer implements Serializer<Object> {
             return this;
         }
 
-        public Builder setDefaultFormatter(Formatter defaultFormatter) {
+        public Builder setDefaultFormatter(com.alex.serialization.core.Formatter defaultFormatter) {
             this.defaultFormatter = defaultFormatter;
             return this;
         }
 
-        public Builder setFormatter(Class<?> clazz, Formatter formatter) {
+        public Builder setFormatter(Class<?> clazz, com.alex.serialization.core.Formatter formatter) {
             formatters.put(clazz, formatter);
             return this;
         }
@@ -67,7 +67,7 @@ public final class ObjectSerializer implements Serializer<Object> {
         this.commonSerializer = commonSerializer;
     }
 
-    public void setDefaultFormatter(Formatter defaultFormatter) {
+    public void setDefaultFormatter(com.alex.serialization.core.Formatter defaultFormatter) {
         this.defaultFormatter = defaultFormatter;
     }
 
@@ -145,9 +145,8 @@ public final class ObjectSerializer implements Serializer<Object> {
         List<SerializedField> serializedFields = new ArrayList<>(sf);
         if (serializedFieldComparator != null) {
             serializedFields.sort(serializedFieldComparator);
-        } else {
-            serializedFields.sort(new ByPosition());
         }
+        serializedFields.sort(new ByPosition());
 
         if (formatters.containsKey(clazz)) {
             return formatters.get(clazz).format(clazz, serializedFields);
@@ -182,7 +181,7 @@ public final class ObjectSerializer implements Serializer<Object> {
         if (field.isAnnotationPresent(Position.class)) {
             return field.getAnnotation(Position.class).position();
         }
-        return -1;
+        return Integer.MAX_VALUE;
     }
 
     private boolean ignore(Field field) {

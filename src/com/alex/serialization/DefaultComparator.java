@@ -1,7 +1,7 @@
-package serialization;
+package com.alex.serialization;
 
-import serialization.core.SerializedField;
-import serialization.core.SerializedFieldComparator;
+import com.alex.serialization.core.SerializedField;
+import com.alex.serialization.core.SerializedFieldComparator;
 
 public class DefaultComparator implements SerializedFieldComparator {
 

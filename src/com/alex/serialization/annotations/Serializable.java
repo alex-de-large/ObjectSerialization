@@ -1,7 +1,7 @@
-package serialization.annotations;
+package com.alex.serialization.annotations;
 
-import serialization.CommonSerializer;
-import serialization.core.Serializer;
+import com.alex.serialization.CommonSerializer;
+import com.alex.serialization.core.Serializer;
 
 import java.lang.annotation.*;
 

@@ -1,4 +1,4 @@
-package serialization.core;
+package com.alex.serialization.core;
 
 public interface Deserializer<O> {
 

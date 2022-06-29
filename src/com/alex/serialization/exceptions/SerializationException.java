@@ -1,4 +1,4 @@
-package serialization.exceptions;
+package com.alex.serialization.exceptions;
 
 public class SerializationException extends RuntimeException {
 

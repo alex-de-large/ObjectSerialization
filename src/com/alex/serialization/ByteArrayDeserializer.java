@@ -1,6 +1,6 @@
-package serialization;
+package com.alex.serialization;
 
-import serialization.core.Deserializer;
+import com.alex.serialization.core.Deserializer;
 
 public class ByteArrayDeserializer implements Deserializer<byte[]> {
     @Override

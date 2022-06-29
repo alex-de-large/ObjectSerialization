@@ -1,6 +1,6 @@
-package serialization.annotations;
+package com.alex.serialization.annotations;
 
-import serialization.SerializedFieldStringValueExtractionPolicy;
+import com.alex.serialization.SerializedFieldStringValueExtractionPolicy;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

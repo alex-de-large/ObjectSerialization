@@ -1,4 +1,4 @@
-package serialization.core;
+package com.alex.serialization.core;
 
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-package serialization.annotations;
+package com.alex.serialization.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,10 +1,9 @@
-package serialization;
+package com.alex.serialization;
 
-import serialization.core.Formatter;
-import serialization.core.SerializedField;
+import com.alex.serialization.core.Formatter;
+import com.alex.serialization.core.SerializedField;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class JsonFormatter implements Formatter {

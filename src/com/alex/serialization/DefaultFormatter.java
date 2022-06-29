@@ -1,8 +1,8 @@
-package serialization;
+package com.alex.serialization;
 
-import serialization.core.Formatter;
-import serialization.core.SerializedField;
-import serialization.exceptions.SerializationException;
+import com.alex.serialization.core.Formatter;
+import com.alex.serialization.core.SerializedField;
+import com.alex.serialization.exceptions.SerializationException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

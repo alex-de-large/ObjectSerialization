@@ -1,6 +1,6 @@
-package serialization;
+package com.alex.serialization;
 
-import serialization.core.Serializer;
+import com.alex.serialization.core.Serializer;
 
 public class FloatSerializer implements Serializer<Float> {
 

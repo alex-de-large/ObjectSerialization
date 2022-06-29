@@ -1,7 +1,7 @@
-package serialization;
+package com.alex.serialization;
 
-import serialization.core.Serializer;
-import serialization.exceptions.SerializationException;
+import com.alex.serialization.core.Serializer;
+import com.alex.serialization.exceptions.SerializationException;
 
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;

@@ -1,9 +1,9 @@
-package serialization;
+package com.alex.serialization;
 
-import serialization.annotations.Parsable;
-import serialization.core.Parser;
-import serialization.core.SerializedField;
-import serialization.exceptions.DeserializationException;
+import com.alex.serialization.annotations.Parsable;
+import com.alex.serialization.core.Parser;
+import com.alex.serialization.core.SerializedField;
+import com.alex.serialization.exceptions.DeserializationException;
 
 import java.lang.reflect.Field;
 import java.util.List;

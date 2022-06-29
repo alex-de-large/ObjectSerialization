@@ -1,4 +1,4 @@
-package serialization.annotations;
+package com.alex.serialization.annotations;
 
 public @interface Format {
 }

@@ -1,7 +1,7 @@
-package serialization;
+package com.alex.serialization;
 
-import serialization.core.Deserializer;
-import serialization.exceptions.DeserializationException;
+import com.alex.serialization.core.Deserializer;
+import com.alex.serialization.exceptions.DeserializationException;
 
 public class DoubleDeserializer implements Deserializer<Double> {
     @Override
